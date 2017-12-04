@@ -16,10 +16,10 @@ def main():
     fmeasure_list = []
 
     # hyperparameter
-    half_sliding_window = 2
+    half_sliding_window = 10
     gaussian_filter = False
-    stepwise_weight = False
-    damping_factor = 0.85
+    stepwise_weight = True
+    damping_factor = 1.0
     convergence_threshold = 0.0001
     # num_keywords = 10
 
@@ -39,7 +39,7 @@ def main():
         candidates, reverse_candidates = find_candidates(tags)
         # print(candidates)
         assert(len(candidates) == len(reverse_candidates))
-        num_keywords = int(len(candidates)/3)
+        num_keywords = int(len(candidates)/1.1)
 
         # candidate vectors, initialize all the score to be 1
         word_vector = np.full((len(candidates), 1), 1.0)
@@ -62,7 +62,6 @@ def main():
         # print(true_keywords)
         # print("***********************")
         # print(extracted_keywords)
-
         recall, precision, fmeasure = evaluation(extracted_keywords, true_keywords)
         recall_list.append(recall)
         precision_list.append(precision)
@@ -123,9 +122,9 @@ def read_true_keywords(test_filename, test_content):
     # print(test_content)
     # print(true_keywords)
     # for line in content:
-    # 	for word in line.split(";"):
-    # 		if word.strip() != "":
-    # 			true_keywords.append(word.strip())
+    #   for word in line.split(";"):
+    #       if word.strip() != "":
+    #           true_keywords.append(word.strip())
     return true_keywords
 
 def collapsing(keywords, content):
@@ -158,7 +157,7 @@ def collapsing(keywords, content):
         for word in words:
             if word in keywords:
                 keywords.remove(word)
-    keyword_phrase = keyword_phrase.union(keywords)
+    # keyword_phrase = keyword_phrase.union(keywords)
     return keyword_phrase
 
 
