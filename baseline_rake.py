@@ -1,5 +1,5 @@
 import rake
-from textrank_ import *
+from textrank_ import read_filename, read_file, read_true_keywords, evaluation
 
 if __name__ == '__main__':
     rake_object = rake.Rake("SmartStoplist.txt")
@@ -12,12 +12,11 @@ if __name__ == '__main__':
 
     for filename in filename_list:
         content, title, text = read_file(filename)
-        keywords_from_title = extract_keywords_from_title(title)
+        keywords_from_title = rake_object.run(title)
         keywords_from_text = rake_object.run(content)
         keywords_from_text = [tup[0] for tup in keywords_from_text]
 
-        keywords = (set(keywords_from_title + keywords_from_text))
-        extracted_keywords = collapsing(keywords, content)
+        extracted_keywords = (set(keywords_from_title + keywords_from_text))
 
         # evaluation
         test_filename = filename.split(".")[0] + ".uncontr"
