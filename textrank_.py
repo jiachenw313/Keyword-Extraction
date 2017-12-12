@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import re
+import random
 import operator
 import nltk
 import glob, os
@@ -15,14 +16,55 @@ def main():
     precision_list = []
     fmeasure_list = []
 
+    recall_random = []
+    precision_random = []
+    fmeasure_random = []
+
     # hyperparameter
     half_sliding_window = 10
     gaussian_filter = False
     stepwise_weight = True
-    damping_factor = 1.0
+    damping_factor = 0.85
     convergence_threshold = 0.0001
     # num_keywords = 10
 
+    # randomly select keywords
+    # for filename in filename_list:
+    #     print(filename)
+    #     content, title, text = read_file(filename)
+    #     tags = extract_content(text)
+    #     # print(tags)
+
+
+    #     # find keywords from tile directly
+    #     keywords_from_title = extract_keywords_from_title(title)
+    #     # print(keywords_from_title)
+
+    #     # find vertices for textrank
+    #     candidates, reverse_candidates = find_candidates(tags)
+    #     # print(candidates)
+
+    #     keywords = random.sample(list(candidates.keys()), int(len(candidates)/1.1))
+    #     # print(keywords)
+    #     # extracted_keywords = 
+    #     keyword_phrase = collapsing(set(keywords), content)
+
+    #     test_filename = filename.split(".")[0] + ".uncontr"
+    #     true_keywords = read_true_keywords(test_filename, content)
+    #     if len(true_keywords) == 0:
+    #         continue
+    #     # print(true_keywords)
+    #     # print("***********************")
+    #     # print(extracted_keywords)
+    #     recall, precision, fmeasure = evaluation(keyword_phrase, true_keywords)
+    #     recall_random.append(recall)
+    #     precision_random.append(precision)
+    #     fmeasure_random.append(fmeasure)
+    #     print("recall: " + str(recall) + " precision: " + str(precision) + " fmeasure: " + str(fmeasure))
+    #     # break
+
+
+    print("***************************TEXTRANK***************************")
 
     for filename in filename_list:
         print(filename)
@@ -39,7 +81,7 @@ def main():
         candidates, reverse_candidates = find_candidates(tags)
         # print(candidates)
         assert(len(candidates) == len(reverse_candidates))
-        num_keywords = int(len(candidates)/1.1)
+        num_keywords = int(len(candidates)/5)
 
         # candidate vectors, initialize all the score to be 1
         word_vector = np.full((len(candidates), 1), 1.0)
@@ -53,6 +95,8 @@ def main():
         # print(keywords)
         # collapsing
         extracted_keywords = collapsing(keywords, content)
+        print(extracted_keywords)
+        exit(0)
 
         # evaluation
         test_filename = filename.split(".")[0] + ".uncontr"
@@ -69,6 +113,12 @@ def main():
         print("recall: " + str(recall) + " precision: " + str(precision) + " fmeasure: " + str(fmeasure) + " num_iter: " + str(num_iter))
     
         # break
+
+    # print("Random")
+    # print("Total recall: ", sum(recall_random) / len(recall_random))
+    # print("Total precision: ", sum(precision_random) / len(precision_random))
+    # print("Total f-measure: ", sum(fmeasure_random) / len(fmeasure_random))
+    print("Textrank")
     print("Total recall: ", sum(recall_list) / len(recall_list))
     print("Total precision: ", sum(precision_list) / len(precision_list))
     print("Total f-measure: ", sum(fmeasure_list) / len(fmeasure_list))
@@ -343,6 +393,7 @@ def read_filename():
     filename_list = []
     for abstract in glob.glob("Hulth2003/Test/*.abstr"):
         filename_list.append(abstract)
+    filename_list = ["poster.content"]
     return filename_list
 
 
