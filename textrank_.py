@@ -68,6 +68,7 @@ def main():
 
     for filename in filename_list:
         print(filename)
+        
         content, title, text = read_file(filename)
         tags = extract_content(text)
         # print(tags)
@@ -79,9 +80,8 @@ def main():
 
         # find vertices for textrank
         candidates, reverse_candidates = find_candidates(tags)
-        # print(candidates)
         assert(len(candidates) == len(reverse_candidates))
-        num_keywords = int(len(candidates)/5)
+        num_keywords = int(len(candidates)/1.5)
 
         # candidate vectors, initialize all the score to be 1
         word_vector = np.full((len(candidates), 1), 1.0)
@@ -89,14 +89,12 @@ def main():
         edge_weights = calculate_edge_weight(text, candidates, half_sliding_window, gaussian_filter, stepwise_weight)
         word_vector, num_iter = run_pagerank(word_vector, edge_weights, damping_factor, convergence_threshold)
         keywords_from_text = convert_to_keywords(word_vector, reverse_candidates, num_keywords)
-        # print(keywords_from_text)
+        print(keywords_from_text)
         keywords = (set(keywords_from_title + keywords_from_text))
         # print("**************************")
         # print(keywords)
         # collapsing
         extracted_keywords = collapsing(keywords, content)
-        print(extracted_keywords)
-        exit(0)
 
         # evaluation
         test_filename = filename.split(".")[0] + ".uncontr"
@@ -112,7 +110,6 @@ def main():
         fmeasure_list.append(fmeasure)
         print("recall: " + str(recall) + " precision: " + str(precision) + " fmeasure: " + str(fmeasure) + " num_iter: " + str(num_iter))
     
-        # break
 
     # print("Random")
     # print("Total recall: ", sum(recall_random) / len(recall_random))
@@ -222,7 +219,7 @@ def extract_keywords_from_title(title):
     # title_tokens = tokenizer.tokenize(title)
     title_tokens = nltk.word_tokenize(title)
     title_tags = nltk.pos_tag(title_tokens)
-
+    # print(title_tags)
     keywords_from_title = []
 
     for tag in title_tags:
@@ -378,9 +375,14 @@ def read_file(filename):
 
     title = content[0].strip()
     text = ""
+    still_title = True
     for i in range(1, len(content)):
-        text += content[i].strip()
-        text += " "
+        if content[i].startswith("\t") and still_title:
+                title = title + " " + content[i].strip()
+        else:
+            still_title = False
+            text += content[i].strip()
+            text += " "
     content_str = title + " " + text
 
     return content_str, title, text
