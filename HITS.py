@@ -7,6 +7,9 @@ import scipy
 class hits:
 
     def __init__(self):
+        '''
+            the initialization function that organize the whole process of the HITS algorithm
+        '''
         filename_list = textrank_.read_filename()
         recall_list = []
         precision_list = []
@@ -51,6 +54,11 @@ class hits:
         print("Total f-measure: " + str(sum(fmeasure_list) / len(fmeasure_list)))
 
     def filter_single(self, set):
+        '''
+            INPUT: set of keywords and key phrases
+            OUTPUT:
+                set of noun keywords and all key phrases
+        '''
         temp_set = set.copy()
         for word in set:
             list = word.strip().split(' ')
@@ -60,6 +68,11 @@ class hits:
         return temp_set
 
     def get_keywords(self, ahtype="ah", plus_title=False):
+        '''
+            INPUT: ahtype: which score is used as ranking
+                   plus_title: whether to include words in titles
+            OUTPUT: none
+        '''
         if ahtype == "ah":
             ah_index = self.h_index + self.a_index
         if ahtype == "a":
@@ -75,6 +88,10 @@ class hits:
         self.extracted_keywords = textrank_.collapsing(self.single_keyword, self.content)
 
     def get_weights(self, intext, window_size):
+        '''
+            INPUT: input test, window size
+            OUTPUT: the initial weights using baseline
+        '''
         weights = np.zeros((len(self.candidates), len(self.candidates)), dtype=float)
         token_list = nltk.word_tokenize(intext)
         for i1 in range(len(token_list)):
@@ -85,6 +102,10 @@ class hits:
         return weights
 
     def get_weighted_weights(self, text, half_sliding_window, gaussian_filter=False, stepwise_weight=False):
+        '''
+            INPUT: text, half window size, whether to use Gaussian filter, whether to use stepwise_filter
+            OUTPUT: the initial weights using stepwise or Gaussian filter
+        '''
         edge_weights = np.zeros((len(self.candidates), len(self.candidates)))
         token_list = nltk.word_tokenize(text)
 
@@ -109,6 +130,9 @@ class hits:
         return edge_weights
 
     def update(self):
+        '''
+            Update the authority and hub
+        '''
         self.a = np.dot(self.edge_weights.T, self.h)
         sum_a = np.sum(np.square(self.a))
         self.a /= np.sqrt(sum_a)
